@@ -29,6 +29,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return /^#([0-9A-F]{3}){1,2}$/i.test(color);
     }
 
+    document.querySelectorAll('.block').forEach(block => {
+        block.addEventListener('click', function() {
+            const blockId = this.dataset.blockId; // Speichern der Block-ID oder Block-Nummer
+            openModal(blockId); // Übergabe der Block-ID an das Modal
+        });
+    });
+    
+
     // Funktion zur Überprüfung von RGB-Farben
     function isValidRgb(color) {
         const rgbPattern = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/;
@@ -54,6 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset Button
     document.getElementById('reset-button').addEventListener('click', resetApp);
 });
+
+function openModal(blockId) {
+    const modal = document.getElementById('myModal');
+    modal.style.display = "block";
+    
+    // Hier die Logik, um nur den spezifischen Block auszuwählen
+    const blockInput = document.querySelector(`#block-select [value="${blockId}"]`);
+    if (blockInput) {
+        blockInput.selected = true; // Den angeklickten Block per default auswählen
+    }
+}
+
 
 // Hauptinitialisierungsfunktion
 function init() {
@@ -111,7 +131,7 @@ function createBlocks() {
             blockCount++;
             const block = document.createElement('div');
             block.classList.add('block');
-            block.dataset.blockId = blockCount;
+            block.dataset.blockId = blockCount;  // Hier wird die ID als Attribut gesetzt
             block.dataset.bereich = bereich;
             block.style.backgroundColor = details.farbe;
 
@@ -129,12 +149,14 @@ function createBlocks() {
             block.appendChild(progressBar);
 
             // Eventlistener zum Öffnen des Modals bei Klick auf den Block
-            block.addEventListener('click', () => openModal());
+            // Hier wird die Block-ID übergeben, wenn der Block angeklickt wird
+            block.addEventListener('click', () => openModal(blockCount));
 
             blockContainer.appendChild(block);
         }
     }
 }
+
 
 // Modal-Setup und Eventlistener
 
@@ -158,63 +180,76 @@ function setupModal() {
     taskForm.addEventListener('submit', saveTask);
 }
 
-// Funktion zum Öffnen des Modals
-function openModal() {
+
+
+
+function openModal(blockId, blockText) {
     const modal = document.getElementById('task-modal');
     modal.style.display = 'block';
+
+    // Block-ID und Block-Namen im Modal anzeigen
+    const blockDisplay = document.getElementById('block-display');
+    blockDisplay.textContent = `Block ${blockId} - ${blockText}`; // Block-ID und Bereichsname anzeigen
+
+
+    // Block-ID in das versteckte Feld eintragen
+    const hiddenBlockIdInput = document.getElementById('hiddenBlockId');
+    hiddenBlockIdInput.value = blockId;
+
+    // Optional: Bereichsauswahl aktualisieren, falls relevant
+    const bereichAuswahl = document.getElementById('bereich-auswahl');
+    bereichAuswahl.innerHTML = ''; // Alte Optionen entfernen
+    // Dynamisch Optionen einfügen (abhängig vom Block oder Bereich, falls nötig)
+    updateBereichAuswahl();
 }
+
 
 // Aufgaben speichern und einem Block zuweisen
 function saveTask(event) {
     event.preventDefault();
+    
+    const blockId = document.getElementById('hiddenBlockId').value; // Die Block-ID aus dem versteckten Feld holen
     const bereich = document.getElementById('bereich-auswahl').value;
     const taskDuration = parseInt(document.getElementById('task-duration').value) * 30; // Dauer in Minuten
 
     const tasks = JSON.parse(localStorage.getItem('tasks')) || {};
-    if (!tasks[bereich]) tasks[bereich] = [];
+    if (!tasks[blockId]) tasks[blockId] = [];
 
     // Aufgabe hinzufügen
-    tasks[bereich].push({ duration: taskDuration });
+    tasks[blockId].push({ bereich: bereich, duration: taskDuration });
     localStorage.setItem('tasks', JSON.stringify(tasks));
 
     // Fortschritt in den Blöcken aktualisieren
-    assignTaskToBlocks(bereich, taskDuration);
+    assignTaskToBlocks(bereich, taskDuration, blockId);
 
     // Modal schließen und Formular zurücksetzen
     document.getElementById('task-modal').style.display = 'none';
     event.target.reset();
 }
 
-// Aufgaben einem Block zuweisen
-function assignTaskToBlocks(bereich, taskDuration) {
-    const blockContainer = document.getElementById('block-container');
-    const blocks = blockContainer.querySelectorAll(`.block[data-bereich="${bereich}"]`);
 
-    let remainingDuration = taskDuration; // Dauer der Aufgabe in Minuten
+// Aufgaben einem Block zuweisen
+function assignTaskToBlocks(bereich, taskDuration, blockId) {
+    const block = document.querySelector(`.block[data-block-id="${blockId}"]`);
+    
+    let blockUsedTime = parseInt(localStorage.getItem(`block-${blockId}`)) || 0;
     const maxBlockDuration = 240; // 4 Stunden pro Block in Minuten
 
-    blocks.forEach((block) => {
-        const currentBlockId = block.dataset.blockId;
-        let blockUsedTime = parseInt(localStorage.getItem(`block-${currentBlockId}`)) || 0;
+    if (blockUsedTime < maxBlockDuration && taskDuration > 0) {
+        const availableTime = maxBlockDuration - blockUsedTime;
 
-        if (blockUsedTime < maxBlockDuration && remainingDuration > 0) {
-            const availableTime = maxBlockDuration - blockUsedTime;
+        // Berechnen, wie viel Zeit in diesen Block passt
+        const timeToAssign = Math.min(availableTime, taskDuration);
 
-            // Berechnen, wie viel Zeit in diesen Block passt
-            const timeToAssign = Math.min(availableTime, remainingDuration);
+        // Zeit im Block aktualisieren
+        blockUsedTime += timeToAssign;
+        localStorage.setItem(`block-${blockId}`, blockUsedTime);
 
-            // Zeit im Block aktualisieren
-            blockUsedTime += timeToAssign;
-            localStorage.setItem(`block-${currentBlockId}`, blockUsedTime);
-
-            // Fortschrittsanzeige für diesen Block aktualisieren
-            updateBlockProgress(block, blockUsedTime);
-
-            // Restzeit der Aufgabe verringern
-            remainingDuration -= timeToAssign;
-        }
-    });
+        // Fortschrittsanzeige für diesen Block aktualisieren
+        updateBlockProgress(block, blockUsedTime);
+    }
 }
+
 
 // Fortschrittsanzeige aktualisieren
 function updateBlockProgress(block, usedTime) {
