@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>10 Block Method</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <h1>10 Block Method - Wochenplanung</h1>
+
+  <!-- Bereichsplanung -->
+  <div id="planning-container">
+    <h2>Bereichsplanung</h2>
+    <form id="planning-form">
+      <label for="bereich">Bereich:</label>
+      <input type="text" id="bereich" required>
+
+      <label for="stunden">Stunden:</label>
+      <input type="number" id="stunden" min="1" max="40" required>
+
+      <!-- Farbauswahl mit Unterstützung für Hex oder RGB -->
+      <label for="farbe">Farbe auswählen (Hex oder RGB):</label>
+      <input type="color" id="color-picker" value="#007BFF">
+      <input type="text" id="color-input" placeholder="z.B. #007BFF oder rgb(0, 123, 255)" required>
+
+      <button type="submit">Bereich hinzufügen</button>
+    </form>
+
+    <div id="bereichsliste"></div>
+  </div>
+
+  <!-- Blockübersicht -->
+  <div id="block-container">
+    <!-- Blöcke werden hier dynamisch erstellt -->
+  </div>
+
+  <!-- Modal für Aufgabenverwaltung -->
+  <div id="task-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Aufgabe hinzufügen</h2>
+      <form id="task-form">
+        <label for="bereich-auswahl">Bereich:</label>
+        <select id="bereich-auswahl">
+          <!-- Optionen werden dynamisch eingefügt -->
+        </select>
+        <label for="task-duration">Dauer (in 30-Minuten-Schritten):</label>
+        <input type="number" id="task-duration" min="1" required>
+        <button type="submit">Speichern</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Reset Button -->
+  <p>
+    <button id="reset-button">App zurücksetzen</button>
+  </p>
+
+  <script src="app.js"></script>
+</body>
+</html>
