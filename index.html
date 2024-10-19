@@ -33,25 +33,54 @@
 
   <!-- Blockübersicht -->
   <div id="block-container">
+    <input type="hidden" id="hiddenBlockId" value="">
     <!-- Blöcke werden hier dynamisch erstellt -->
+
+
   </div>
 
   <!-- Modal für Aufgabenverwaltung -->
-  <div id="task-modal" class="modal">
+  <!-- <div id="task-modal" class="modal">
     <div class="modal-content">
       <span class="close-button">&times;</span>
       <h2>Aufgabe hinzufügen</h2>
       <form id="task-form">
         <label for="bereich-auswahl">Bereich:</label>
-        <select id="bereich-auswahl">
+        <select id="bereich-auswahl"> -->
           <!-- Optionen werden dynamisch eingefügt -->
-        </select>
+        <!-- </select>
         <label for="task-duration">Dauer (in 30-Minuten-Schritten):</label>
         <input type="number" id="task-duration" min="1" required>
         <button type="submit">Speichern</button>
       </form>
     </div>
+  </div> -->
+
+<!-- Modal für Aufgabenverwaltung -->
+<div id="task-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    
+    <!-- Block-Anzeige hinzufügen -->
+    <h2>Aufgabe für Block <span id="block-display"></span> hinzufügen</h2> 
+    
+    <form id="task-form">
+      <!-- <label for="bereich-auswahl">Bereich:</label>
+      <select id="bereich-auswahl">
+        <!-- Optionen werden dynamisch eingefügt -->
+      </select> -->
+      <label for="task-duration">Dauer (in 30-Minuten-Schritten):</label>
+      <input type="number" id="task-duration" min="1" required>
+      
+      <!-- Verstecktes Input-Feld für Block-ID -->
+      <input type="hidden" id="hiddenBlockId" value="">
+
+      <button type="submit">Speichern</button>
+    </form>
   </div>
+</div>
+
+
 
   <!-- Reset Button -->
   <p>
